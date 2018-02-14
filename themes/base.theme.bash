@@ -44,8 +44,9 @@ SCM_GIT_STASH_CHAR_SUFFIX="}"
 
 SCM_P4='p4'
 SCM_P4_CHAR='⌛'
-SCM_P4_OPENED_CHAR='O:'
 SCM_P4_CHANGES_CHAR='C:'
+SCM_P4_DEFAULT_CHAR='D:'
+SCM_P4_OPENED_CHAR='O:'
 
 SCM_HG='hg'
 SCM_HG_CHAR='☿'
@@ -203,15 +204,16 @@ function git_prompt_vars {
 }
 
 function p4_prompt_vars {
-    # echo -e "${SCM_PREFIX}${SCM_BRANCH}:${SCM_CHANGE}${SCM_STATE}${SCM_SUFFIX}"
-    local opened_out="$(timeout 2.0s p4 opened 2> /dev/null)"
-    local opened_count="$(echo "${opened_out}" | wc -l)"
-    local changes_count="$(echo "${opened_out}" | cut -d' ' -f5 | sort | uniq | wc -l)"
+    IFS=$'\t' read -r \
+       opened_count non_default_changes default_count \
+       add_file_count edit_file_count delete_file_count \
+       <<< "$(_p4-opened-counts)"
     if [[ "${opened_count}" -gt 0 ]]; then
         SCM_DIRTY=1
         SCM_STATE=${SCM_THEME_PROMPT_DIRTY}
         [[ "${opened_count}" -gt 0 ]] && SCM_BRANCH+=" ${SCM_P4_OPENED_CHAR}${opened_count}"
-        [[ "${changes_count}" -gt 0 ]] && SCM_BRANCH+=" ${SCM_P4_CHANGES_CHAR}${changes_count}"
+        [[ "${non_default_changes}" -gt 0 ]] && SCM_BRANCH+=" ${SCM_P4_CHANGES_CHAR}${non_default_changes}"
+        [[ "${default_count}" -gt 0 ]] && SCM_BRANCH+=" ${SCM_P4_DEFAULT_CHAR}${default_count}"
     else
         SCM_DIRTY=0
         SCM_STATE=${SCM_THEME_PROMPT_DIRTY}
@@ -219,9 +221,6 @@ function p4_prompt_vars {
 
     SCM_PREFIX=${P4_THEME_PROMPT_PREFIX:-$SCM_THEME_PROMPT_PREFIX}
     SCM_SUFFIX=${P4_THEME_PROMPT_SUFFIX:-$SCM_THEME_PROMPT_SUFFIX}
-
-    # SCM_CHANGE=$(echo "$(p4 changes -m 1 -s submitted ...#have | cut -d' ' -f2)" || echo "")
-    # SCM_BRANCH=
 }
 
 function svn_prompt_vars {
@@ -352,7 +351,7 @@ function python_version_prompt {
   echo -e "$(virtualenv_prompt)$(condaenv_prompt)$(py_interp_prompt)"
 }
 
-function git_user_info {
+function _user_info {
   # support two or more initials, set by 'git pair' plugin
   SCM_CURRENT_USER=$(git config user.initials | sed 's% %+%')
   # if `user.initials` weren't set, attempt to extract initials from `user.name`
