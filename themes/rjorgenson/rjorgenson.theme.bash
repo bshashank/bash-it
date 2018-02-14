@@ -19,7 +19,7 @@ export MYSQL_PS1="(\u@\h) [\d]> "
 
 case $TERM in
         xterm*)
-        TITLEBAR="\[\033]0;\w\007\]"
+        TITLEBAR="\[\033]0;\h\007\]"
         ;;
         *)
         TITLEBAR=""
@@ -81,16 +81,19 @@ prompt() {
     my_ps_user="${STRING_COLOR}\u${normal}";
     my_ps_root="${bold_red}\u${normal}";
     my_ps_path="${STRING_COLOR}\w${normal}";
-
-    # nice prompt
-    case "`id -u`" in
-        0) PS1="${TITLEBAR}${BRACKET_COLOR}┌─[$my_ps_root${BRACKET_COLOR}][$my_ps_host${BRACKET_COLOR}]$(modern_scm_prompt)$(__my_rvm_ruby_version)${BRACKET_COLOR}[${STRING_COLOR}\w${BRACKET_COLOR}]$(is_vim_shell)
-${BRACKET_COLOR}└─$(my_prompt_char)${normal}"
-        ;;
-        *) PS1="${TITLEBAR}${BRACKET_COLOR}┌─[$my_ps_user${BRACKET_COLOR}][$my_ps_host${BRACKET_COLOR}]$(modern_scm_prompt)$(__my_rvm_ruby_version)${BRACKET_COLOR}[${STRING_COLOR}\w${BRACKET_COLOR}]$(is_vim_shell)
-${BRACKET_COLOR}└─$(todo_txt_count)$(my_prompt_char)"
-        ;;
+    build_ps_host="${yellow}\h${normal}";
+    case "`hostname -s`" in
+	sbharadwaj-dev*) my_ps_host="${STRING_COLOR}\h${normal}"
+	    ;;
+	sbharadwaj-*) my_ps_host="${yellow}\h${normal}"
+	    ;;
+	*) my_ps_host="${bold_yellow}\h${normal}"
+	    ;;
     esac
+
+
+    PS1="${TITLEBAR}${BRACKET_COLOR}┌─[$my_ps_host${BRACKET_COLOR}]$(modern_scm_prompt)$(__my_rvm_ruby_version)${BRACKET_COLOR}[${STRING_COLOR}\w${BRACKET_COLOR}]$(is_vim_shell)
+${BRACKET_COLOR}└─$(todo_txt_count)$(my_prompt_char)"
 }
 
 PS2="└─$(my_prompt_char)"
