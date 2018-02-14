@@ -83,7 +83,9 @@ function __powerline_scm_prompt {
       color=${SCM_THEME_PROMPT_CLEAN_COLOR}
     fi
     if [[ "${SCM_GIT_CHAR}" == "${SCM_CHAR}" ]]; then
-      scm_prompt+="${SCM_CHAR}${SCM_BRANCH}${SCM_STATE}"
+        scm_prompt+="${SCM_CHAR}${SCM_BRANCH}${SCM_STATE}"
+    elif [[ "${SCM_P4_CHAR}" == "${SCM_CHAR}" ]]; then
+        scm_prompt+="${SCM_CHAR}${SCM_BRANCH}${SCM_STATE}"
     fi
     echo "${scm_prompt}${scm}|${color}"
   fi
