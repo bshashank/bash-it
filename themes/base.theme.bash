@@ -42,6 +42,11 @@ SCM_GIT_STAGED_CHAR="S:"
 SCM_GIT_STASH_CHAR_PREFIX="{"
 SCM_GIT_STASH_CHAR_SUFFIX="}"
 
+SCM_P4='p4'
+SCM_P4_CHAR='⌛'
+SCM_P4_OPENED_CHAR='O:'
+SCM_P4_CHANGES_CHAR='C:'
+
 SCM_HG='hg'
 SCM_HG_CHAR='☿'
 
@@ -71,6 +76,7 @@ function scm {
   if [[ "$SCM_CHECK" = false ]]; then SCM=$SCM_NONE
   elif [[ -f .git/HEAD ]]; then SCM=$SCM_GIT
   elif which git &> /dev/null && [[ -n "$(git rev-parse --is-inside-work-tree 2> /dev/null)" ]]; then SCM=$SCM_GIT
+  elif which p4 &> /dev/null && [[ -n "$(p4 set P4CLIENT 2> /dev/null)" ]]; then SCM=$SCM_P4
   elif [[ -d .hg ]]; then SCM=$SCM_HG
   elif which hg &> /dev/null && [[ -n "$(hg root 2> /dev/null)" ]]; then SCM=$SCM_HG
   elif [[ -d .svn ]]; then SCM=$SCM_SVN
@@ -81,6 +87,7 @@ function scm {
 function scm_prompt_char {
   if [[ -z $SCM ]]; then scm; fi
   if [[ $SCM == $SCM_GIT ]]; then SCM_CHAR=$SCM_GIT_CHAR
+  elif [[ $SCM == $SCM_P4 ]]; then SCM_CHAR=$SCM_P4_CHAR
   elif [[ $SCM == $SCM_HG ]]; then SCM_CHAR=$SCM_HG_CHAR
   elif [[ $SCM == $SCM_SVN ]]; then SCM_CHAR=$SCM_SVN_CHAR
   else SCM_CHAR=$SCM_NONE_CHAR
@@ -93,6 +100,7 @@ function scm_prompt_vars {
   SCM_DIRTY=0
   SCM_STATE=''
   [[ $SCM == $SCM_GIT ]] && git_prompt_vars && return
+  [[ $SCM == $SCM_P4 ]] && p4_prompt_vars && return
   [[ $SCM == $SCM_HG ]] && hg_prompt_vars && return
   [[ $SCM == $SCM_SVN ]] && svn_prompt_vars && return
 }
@@ -125,6 +133,7 @@ function scm_prompt_info_common {
   fi
 
   # TODO: consider adding minimal status information for hg and svn
+  [[ ${SCM} == ${SCM_P4} ]] && p4_prompt_info && return
   [[ ${SCM} == ${SCM_HG} ]] && hg_prompt_info && return
   [[ ${SCM} == ${SCM_SVN} ]] && svn_prompt_info && return
 }
@@ -191,6 +200,28 @@ function git_prompt_vars {
   SCM_SUFFIX=${GIT_THEME_PROMPT_SUFFIX:-$SCM_THEME_PROMPT_SUFFIX}
 
   SCM_CHANGE=$(_git-short-sha 2>/dev/null || echo "")
+}
+
+function p4_prompt_vars {
+    # echo -e "${SCM_PREFIX}${SCM_BRANCH}:${SCM_CHANGE}${SCM_STATE}${SCM_SUFFIX}"
+    local opened_out="$(timeout 2.0s p4 opened 2> /dev/null)"
+    local opened_count="$(echo "${opened_out}" | wc -l)"
+    local changes_count="$(echo "${opened_out}" | cut -d' ' -f5 | sort | uniq | wc -l)"
+    if [[ "${opened_count}" -gt 0 ]]; then
+        SCM_DIRTY=1
+        SCM_STATE=${SCM_THEME_PROMPT_DIRTY}
+        [[ "${opened_count}" -gt 0 ]] && SCM_BRANCH+=" ${SCM_P4_OPENED_CHAR}${opened_count}"
+        [[ "${changes_count}" -gt 0 ]] && SCM_BRANCH+=" ${SCM_P4_CHANGES_CHAR}${changes_count}"
+    else
+        SCM_DIRTY=0
+        SCM_STATE=${SCM_THEME_PROMPT_DIRTY}
+    fi
+
+    SCM_PREFIX=${P4_THEME_PROMPT_PREFIX:-$SCM_THEME_PROMPT_PREFIX}
+    SCM_SUFFIX=${P4_THEME_PROMPT_SUFFIX:-$SCM_THEME_PROMPT_SUFFIX}
+
+    # SCM_CHANGE=$(echo "$(p4 changes -m 1 -s submitted ...#have | cut -d' ' -f2)" || echo "")
+    # SCM_BRANCH=
 }
 
 function svn_prompt_vars {
@@ -361,6 +392,11 @@ function user_host_prompt {
 function git_prompt_info {
   git_prompt_vars
   echo -e "${SCM_PREFIX}${SCM_BRANCH}${SCM_STATE}${SCM_SUFFIX}"
+}
+
+function p4_prompt_info() {
+    p4_prompt_vars
+    echo -e "${SCM_PREFIX}${SCM_BRANCH}:${SCM_CHANGE}${SCM_STATE}${SCM_SUFFIX}"
 }
 
 function svn_prompt_info {
