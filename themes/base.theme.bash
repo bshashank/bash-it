@@ -204,23 +204,23 @@ function git_prompt_vars {
 }
 
 function p4_prompt_vars {
-    IFS=$'\t' read -r \
-       opened_count non_default_changes default_count \
-       add_file_count edit_file_count delete_file_count \
-       <<< "$(_p4-opened-counts)"
-    if [[ "${opened_count}" -gt 0 ]]; then
-        SCM_DIRTY=1
-        SCM_STATE=${SCM_THEME_PROMPT_DIRTY}
-        [[ "${opened_count}" -gt 0 ]] && SCM_BRANCH+=" ${SCM_P4_OPENED_CHAR}${opened_count}"
-        [[ "${non_default_changes}" -gt 0 ]] && SCM_BRANCH+=" ${SCM_P4_CHANGES_CHAR}${non_default_changes}"
-        [[ "${default_count}" -gt 0 ]] && SCM_BRANCH+=" ${SCM_P4_DEFAULT_CHAR}${default_count}"
-    else
-        SCM_DIRTY=0
-        SCM_STATE=${SCM_THEME_PROMPT_DIRTY}
-    fi
+  IFS=$'\t' read -r \
+     opened_count non_default_changes default_count \
+     add_file_count edit_file_count delete_file_count \
+     <<< "$(_p4-opened-counts)"
+  if [[ "${opened_count}" -gt 0 ]]; then
+    SCM_DIRTY=1
+    SCM_STATE=${SCM_THEME_PROMPT_DIRTY}
+    [[ "${opened_count}" -gt 0 ]] && SCM_BRANCH+=" ${SCM_P4_OPENED_CHAR}${opened_count}"
+    [[ "${non_default_changes}" -gt 0 ]] && SCM_BRANCH+=" ${SCM_P4_CHANGES_CHAR}${non_default_changes}"
+    [[ "${default_count}" -gt 0 ]] && SCM_BRANCH+=" ${SCM_P4_DEFAULT_CHAR}${default_count}"
+  else
+    SCM_DIRTY=0
+    SCM_STATE=${SCM_THEME_PROMPT_DIRTY}
+  fi
 
-    SCM_PREFIX=${P4_THEME_PROMPT_PREFIX:-$SCM_THEME_PROMPT_PREFIX}
-    SCM_SUFFIX=${P4_THEME_PROMPT_SUFFIX:-$SCM_THEME_PROMPT_SUFFIX}
+  SCM_PREFIX=${P4_THEME_PROMPT_PREFIX:-$SCM_THEME_PROMPT_PREFIX}
+  SCM_SUFFIX=${P4_THEME_PROMPT_SUFFIX:-$SCM_THEME_PROMPT_SUFFIX}
 }
 
 function svn_prompt_vars {
@@ -394,8 +394,8 @@ function git_prompt_info {
 }
 
 function p4_prompt_info() {
-    p4_prompt_vars
-    echo -e "${SCM_PREFIX}${SCM_BRANCH}:${SCM_CHANGE}${SCM_STATE}${SCM_SUFFIX}"
+  p4_prompt_vars
+  echo -e "${SCM_PREFIX}${SCM_BRANCH}:${SCM_CHANGE}${SCM_STATE}${SCM_SUFFIX}"
 }
 
 function svn_prompt_info {
