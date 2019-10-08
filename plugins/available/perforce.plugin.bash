@@ -1,6 +1,15 @@
 cite about-plugin
 about-plugin 'perforce helper functions'
 
+function _explain_if_not_p4() {
+    if [[ -n "$(p4 set P4CLIENT 2> /dev/null)" ]]; then
+        return 0;
+    else
+        echo 'You are not in a Perforce (p4) client'
+        return 1;
+    fi
+}
+
 function _p4-client-syncto(){
     p4 changes -t -m1  ...#have | awk -F' ' '{ print $2 "\t" $4, $5 }'
 }
@@ -19,31 +28,46 @@ function _p4-client-syncto-diff(){
 function p4-cldiff {
   about 'print the diff (in unified format) of the given pending change'
   group 'p4'
-  p4 opened -c "${1}" | awk 'BEGIN { FS = "#" } // { print "p4 diff -du " $1 }' | sh;
+
+  if _explain_if_not_p4; then
+    p4 opened -c "${1}" | awk 'BEGIN { FS = "#" } // { print "p4 diff -du " $1 }' | sh;
+  fi
 }
 
 function p4-cldiff2 {
-    about 'print the diff (in unified format) of the given pending change'
-    group 'p4'
+  about 'print the diff (in unified format) of the given pending change'
+  group 'p4'
+
+  if _explain_if_not_p4; then
     p4 opened -c "${1}" | awk 'BEGIN { FS = "#" } // { print "p4 diff2 -du " $1 }' | sh;
+  fi
 }
 
 function p4-files {
-    about 'print the files associated with the changeset'
-    group 'p4'
+  about 'print the files associated with the changeset'
+  group 'p4'
+
+  if _explain_if_not_p4; then
     p4 describe -s "${1}" | grep --only-matching --perl-regexp '(?<=\.\.\. )//\S+(?=#\d+ \w+)'
+  fi
 }
 
 function p4-bugs {
-    about 'print the bug numbers associated with the changeset'
-    group 'p4'
+  about 'print the bug numbers associated with the changeset'
+  group 'p4'
+
+  if _explain_if_not_p4; then
     p4 change -o "${1}" | grep 'Bug Number:' | awk -F ':' '{ print $2 }'
+  fi
 }
 
 function p4-shortlog() {
   about 'print a short summary.'
   group 'p4'
-  p4 describe "${1}" | awk 'FNR == 3 {print}'
+
+  if _explain_if_not_p4; then
+    p4 describe "${1}" | awk 'FNR == 3 {print}'
+  fi
 }
 
 function p4-status() {
