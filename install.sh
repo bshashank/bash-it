@@ -155,6 +155,7 @@ fi
 
 # Load dependencies for enabling components
 source "$BASH_IT/lib/composure.bash"
+source "$BASH_IT/lib/utilities.bash"
 cite _about _param _example _group _author _version
 source "$BASH_IT/lib/helpers.bash"
 
@@ -167,7 +168,7 @@ then
   done
 else
   echo ""
-  echo -e "\033[0;32mEnabling sane defaults\033[0m"
+  echo -e "\033[0;32mEnabling reasonable defaults\033[0m"
   _enable-completion bash-it
   _enable-completion system
   _enable-plugin base

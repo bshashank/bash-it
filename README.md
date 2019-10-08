@@ -8,7 +8,7 @@
 Includes autocompletion, themes, aliases, custom functions, a few stolen pieces from Steve Losh, and more.
 
 Bash-it provides a solid framework for using, developing and maintaining shell scripts and custom commands for your daily work.
-If you're using the _Bourne Again Shell_ (Bash) on a regular basis and have been looking for an easy way on how to keep all of these nice little scripts and aliases under control, then Bash-it is for you!
+If you're using the _Bourne Again Shell_ (Bash) regularly and have been looking for an easy way on how to keep all of these nice little scripts and aliases under control, then Bash-it is for you!
 Stop polluting your `~/bin` directory and your `.bashrc` file, fork/clone Bash-it and start hacking away.
 
 - [Contributing](#contributing)
@@ -58,11 +58,11 @@ Feel free to enable the tools you want to use after the installation.
 When you run without the `--no-modify-config` switch, the Bash-it installer automatically modifies/replaces your existing config file.
 Use the `--no-modify-config` switch to avoid unwanted modifications, e.g. if your Bash config file already contains the code that loads Bash-it.
 
-**NOTE**: Keep in mind how Bash load its configuration files,
-`.bash_profile` for login shells (and in macOS in terminal emulators like [Terminal.app](http://www.apple.com/osx/apps/) or 
+**NOTE**: Keep in mind how Bash loads its configuration files,
+`.bash_profile` for login shells (and in macOS in terminal emulators like [Terminal.app](http://www.apple.com/osx/apps/) or
 [iTerm2](https://www.iterm2.com/)) and `.bashrc` for interactive shells (default mode in most of the GNU/Linux terminal emulators),
 to ensure that Bash-it is loaded correctly.
-A good "practice" is sourcing `.bashrc` into `.bash_profile` to keep things working in all the scenarios. 
+A good "practice" is sourcing `.bashrc` into `.bash_profile` to keep things working in all the scenarios.
 To achieve this, you can add this snippet in your `.bash_profile`:
 
 ```
@@ -76,8 +76,8 @@ Refer to the official [Bash documentation](https://www.gnu.org/software/bash/man
 
 ### Install using Docker
 
-You can try Bash-it in an isolated environment without changing any local files via a [Docker](https://www.docker.com/) Container.  
-(Bash Shell v4.4 with Bash-it, [bats](https://github.com/sstephenson/bats) and bash-completion based on [Alpine Linux](https://alpinelinux.org/)).   
+You can try Bash-it in an isolated environment without changing any local files via a [Docker](https://www.docker.com/) Container.
+(Bash Shell v4.4 with Bash-it, [bats](https://github.com/sstephenson/bats),and bash-completion based on [Alpine Linux](https://alpinelinux.org/)).
 
 `docker pull ellerbrock/bash-it`
 
@@ -140,7 +140,7 @@ Currently enabled modules will be shown in green.
 
 ### Searching with Negations
 
-You can prefix a search term with a "-" to exclude it from the results. 
+You can prefix a search term with a "-" to exclude it from the results.
 In the above example, if we wanted to hide `chruby` and `chruby-auto`,
 we could change the command as follows:
 
@@ -189,6 +189,7 @@ There are over 50+ Bash-it themes to pick from in `$BASH_IT/themes`.
 The default theme is `bobby`.
 Set `BASH_IT_THEME` to the theme name you want, or if you've developed your own custom theme outside of `$BASH_IT/themes`,
 point the `BASH_IT_THEME` variable directly to the theme file.
+To disable theming completely, leave the variable empty.
 
 Examples:
 
@@ -198,11 +199,14 @@ export BASH_IT_THEME="powerline-multiline"
 
 # Use a theme outside of the Bash-it folder
 export BASH_IT_THEME="/home/foo/my_theme/my_theme.theme.bash"
+
+# Disable theming
+export BASH_IT_THEME=""
 ```
 
-You can easily preview the themes in your own shell using `BASH_PREVIEW=true reload`.
+You can easily preview the themes in your own shell using `BASH_PREVIEW=true bash-it reload`.
 
-If you've created your own custom prompts, we'd love it if you shared with everyone else! Just submit a Pull Request.
+If you've created your own custom prompts, we'd love it if you shared them with everyone else! Just submit a Pull Request.
 You can see theme screenshots on [wiki/Themes](https://github.com/Bash-it/bash-it/wiki/Themes).
 
 **NOTE**: Bash-it and some themes use UTF-8 characters, so to avoid strange behavior in your terminal, set your locale to `LC_ALL=en_US.UTF-8` or the equivalent to your language if it isn't American English.
@@ -231,7 +235,7 @@ Bash-it will automatically reload itself after activating or deactivating plugin
 
 ### Prompt Version Control Check
 
-Bash-it provides prompt themes the ability to check and display version control information for the current directory.
+Bash-it provides prompt themes with the ability to check and display version control information for the current directory.
 The information is retrieved for each directory and can slow down the navigation of projects with a large number of files and folders.
 Turn version control checking off to prevent slow directory navigation within large projects.
 
@@ -294,8 +298,8 @@ Set `SCM_GIT_SHOW_REMOTE_INFO` to 'false' to **disable the feature**:
 
 ### Untracked files
 
-By default, the `git status` command shows information about *untracked* files. 
-This behavior can be controlled through command-line flags or git configuration files. 
+By default, the `git status` command shows information about *untracked* files.
+This behavior can be controlled through command-line flags or git configuration files.
 For big repositories, ignoring *untracked* files can make git faster.
 Bash-it uses `git status` to gather the repo information it shows in the prompt, so in some circumstances, it can be useful to instruct Bash-it to ignore these files.
 You can control this behavior with the flag `SCM_GIT_IGNORE_UNTRACKED`:
@@ -311,6 +315,32 @@ Set `SCM_GIT_IGNORE_UNTRACKED` to 'true' to **ignore** *untracked* files:
 Also, with this flag to false, Bash-it will not show the repository as dirty when the repo has *untracked* files, and will not display the count of *untracked* files.
 
 **NOTE:** If you set in git configuration file the option to ignore *untracked* files, this flag has no effect, and Bash-it will ignore *untracked* files always.
+
+### Stash item count
+
+When `SCM_GIT_SHOW_DETAILS` is enabled, you can get the count of *stashed* items. This feature can be useful when a user has a lot of stash items.
+This feature is controlled through the flag `SCM_GIT_SHOW_STASH_INFO` as follows:
+
+Set `SCM_GIT_SHOW_STASH_INFO` to 'true' (the default value) to **show** the count of stashed items:
+
+* `export SCM_GIT_SHOW_STASH_INFO=true`
+
+Set `SCM_GIT_SHOW_STASH_INFO` to 'false' to **don't show** it:
+
+* `export SCM_GIT_SHOW_STASH_INFO=false`
+
+### Ahead/Behind Count
+
+When displaying information regarding whether or not the local branch is ahead or behind its remote counterpart, you can opt to display the number of commits ahead/behind.
+This is useful if you only care whether or not you are ahead or behind and do not care how far ahead/behind you are.
+
+Set `SCM_GIT_SHOW_COMMIT_COUNT` to 'true' (the default value) to **show** the count of commits ahead/behind:
+
+* `export SCM_GIT_SHOW_COMMIT_COUNT=true`
+
+Set `SCM_GIT_SHOW_COMMIT_COUNT` to 'false' to **don't show** it:
+
+* `export SCM_GIT_SHOW_COMMIT_COUNT=false`
 
 ### Git user
 
@@ -333,7 +363,7 @@ You can control the prefix and the suffix of this component using the two variab
 
 And
 
-* `export SCM_THEME_CURRENT_USER_SUFFIX=' ☺︎ '` 
+* `export SCM_THEME_CURRENT_USER_SUFFIX=' ☺︎ '`
 
 **NOTE:** If using `SCM_GIT_SHOW_MINIMAL_INFO=true`, then the value of `SCM_GIT_SHOW_CURRENT_USER` is ignored.
 
